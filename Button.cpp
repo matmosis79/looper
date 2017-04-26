@@ -45,6 +45,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
 
   // Set initial-Button-State
   _previous = HIGH;
+  _momentaryOn = false;
 }
 
 
@@ -80,6 +81,13 @@ byte Button::checkState() {
     digitalWrite(_ledPin, !digitalRead(_ledPin) );
     ret = 1;    
   }
+
+  if (millis() - _time > _debounce && reading==LOW) {
+    // se siamo qui consideriamo il tasto in MOMENTARY mode
+    _momentaryOn = true;
+  }
+
+  
   _previous = reading;
 
   return ret;
@@ -108,4 +116,7 @@ byte Button::getLedPin() {
   return _ledPin;
 }
 
+byte Button::isMomentary() {
+  return _momentaryOn;
+}
 

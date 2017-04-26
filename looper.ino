@@ -27,6 +27,7 @@ byte groupPresets[] = {
 };
 
 int relayPin = 2;
+int relaySSRPin = 6;
 
 void buttonSelect(byte btnNo, boolean force) {
   precBtnNo = currBtnNo; // l'ultimo selezionato
@@ -46,7 +47,12 @@ void buttonSelect(byte btnNo, boolean force) {
   else
     Serial.println("loop");
       
-  
+  if (btnNo==1) digitalWrite(relayPin, digitalRead(buttons[btnNo].getLedPin()));
+  else digitalWrite(relayPin, LOW);
+
+  if (btnNo==2) digitalWrite(relaySSRPin, !digitalRead(buttons[btnNo].getLedPin()));
+  else digitalWrite(relaySSRPin, HIGH);
+      
 }
 
 void setup() {
@@ -54,6 +60,8 @@ void setup() {
   Serial.begin(9600);
    
   pinMode(relayPin, OUTPUT);
+  pinMode(relaySSRPin, OUTPUT);
+  digitalWrite(relaySSRPin, HIGH);
   
   // Setting LED-Groups to Buttons if needed
   buttons[0].setLEDGroup(groupPresets, sizeof(groupPresets) );
@@ -73,7 +81,20 @@ void loop() {
     byte ret = buttons[btnNo].checkState();
 
     if (ret == 1) {
+
+      if (precBtnNo != btnNo && buttons[btnNo].isMomentary()) {
+        Serial.println("torno al precedente");
+        buttonSelect(precBtnNo, true);
+        
+      }
+      
+      
       buttonSelect(btnNo, false);
+
+
+      
+      
+      
       
       for (byte btnNo1 = 0; btnNo1 < sizeof(buttons) / sizeof(Button); btnNo1++) {
         if (btnNo1==currBtnNo) continue;

@@ -34,6 +34,7 @@ class Button {
     void select();
     void setLEDGroup(byte ledGroup[], byte ledGroupQty);
     byte getLedPin();
+    byte isMomentary();
 
   private:
     // Private Attributes
@@ -47,11 +48,13 @@ class Button {
     byte *_ledGroup;
 
     byte _previous;    // the previous reading from the input pin
+    byte _momentaryOn; // button in momentary mode
     
     // the follow variables are long's because the time, measured in miliseconds,
     // will quickly become a bigger number than can be stored in an int.
     long _time = 0;         // the last time the output pin was toggled
-    long _debounce = 500;   // the debounce time, increase if the output flickers    
+    long _debounce = 500;   // the debounce time, increase if the output flickers
+    
 
     boolean status;
     // Private Functions
