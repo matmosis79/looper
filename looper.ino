@@ -29,9 +29,9 @@ byte groupPresets[] = {
 int relayPin = 2;
 int relaySSRPin = 6;
 
-void buttonSelect(byte btnNo, boolean force) {
+void buttonSelect(byte btn, boolean force) {
   precBtnNo = currBtnNo; // l'ultimo selezionato
-  currBtnNo = btnNo; // il corrente
+  currBtnNo = btn; // il corrente
   
   if (force)
     // forziamo la selezione visto che non arriva da alterazione
@@ -47,12 +47,21 @@ void buttonSelect(byte btnNo, boolean force) {
   else
     Serial.println("loop");
       
-  if (btnNo==1) digitalWrite(relayPin, digitalRead(buttons[btnNo].getLedPin()));
+  if (currBtnNo==1) digitalWrite(relayPin, digitalRead(buttons[currBtnNo].getLedPin()));
   else digitalWrite(relayPin, LOW);
 
-  if (btnNo==2) digitalWrite(relaySSRPin, !digitalRead(buttons[btnNo].getLedPin()));
+  if (currBtnNo==2) digitalWrite(relaySSRPin, !digitalRead(buttons[currBtnNo].getLedPin()));
   else digitalWrite(relaySSRPin, HIGH);
-      
+
+
+  // resettiamo tutti gli altri led
+  for (byte btnNo = 0; btnNo < sizeof(buttons) / sizeof(Button); btnNo++) {
+    if (btnNo==currBtnNo) continue;
+        
+      // spegni tutti i led che non sono del current button
+      digitalWrite(buttons[btnNo].getLedPin(), LOW);
+  }
+   
 }
 
 void setup() {
@@ -85,24 +94,11 @@ void loop() {
       if (precBtnNo != btnNo && buttons[btnNo].isMomentary()) {
         Serial.println("torno al precedente");
         buttonSelect(precBtnNo, true);
-        
+      } else {
+        Serial.println("tasto corrente");
+	buttonSelect(btnNo, false);
       }
-      
-      
-      buttonSelect(btnNo, false);
 
-
-      
-      
-      
-      
-      for (byte btnNo1 = 0; btnNo1 < sizeof(buttons) / sizeof(Button); btnNo1++) {
-        if (btnNo1==currBtnNo) continue;
-        
-        // spegni tutti i led che non sono del current button
-        digitalWrite(buttons[btnNo1].getLedPin(), LOW);
-      }
-      
     }      
   }
   

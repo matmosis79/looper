@@ -48,16 +48,11 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
   _momentaryOn = false;
 }
 
-
-
 /**
    Standard-Destructor
-
 */
 Button::~Button() {
 }
-
-
 
 /**
    This method will called, to check Button-State and will
@@ -83,13 +78,13 @@ byte Button::checkState() {
   }
 
   if (millis() - _time > _debounce && reading==LOW) {
-    // se siamo qui consideriamo il tasto in MOMENTARY mode
     _momentaryOn = true;
   }
+  if (millis() - _time > _debounce && reading==HIGH) {
+    _momentaryOn = false;
+  }
 
-  
   _previous = reading;
-
   return ret;
 }
 
