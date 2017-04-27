@@ -77,11 +77,13 @@ byte Button::checkState() {
     ret = 1;    
   }
 
-  if (millis() - _time > _debounce && reading==LOW) {
+  if (millis() - _time > _debounce && reading==LOW && !_momentaryOn) {
     _momentaryOn = true;
+    Serial.println("momentary ON");
   }
-  if (millis() - _time > _debounce && reading==HIGH) {
+  if (millis() - _time > _debounce && reading==HIGH && _momentaryOn) {
     _momentaryOn = false;
+    Serial.println("momentary OFF");
   }
 
   _previous = reading;

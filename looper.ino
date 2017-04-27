@@ -69,6 +69,7 @@ void setup() {
   Serial.begin(9600);
    
   pinMode(relayPin, OUTPUT);
+  
   pinMode(relaySSRPin, OUTPUT);
   digitalWrite(relaySSRPin, HIGH);
   
@@ -96,7 +97,7 @@ void loop() {
         buttonSelect(precBtnNo, true);
       } else {
         Serial.println("tasto corrente");
-	buttonSelect(btnNo, false);
+	      buttonSelect(btnNo, false);
       }
 
     }      
