@@ -20,14 +20,23 @@ Button buttons[] = {
 byte precBtnNo = 0;
 byte currBtnNo = 0;
 
-// =============== Defining LED-Groups ===================
+// =============== Defining RELAYS ===================
 //
-byte groupPresets[] = {
-  10, 9, 8
+byte relays[] = {
+  2, 6
 };
 
-int relayPin = 2;
-int relaySSRPin = 6;
+// =============== Defining PRESETS ===================
+//
+byte preset1[] = {
+  2, 6
+};
+byte preset2[] = {
+  2
+};
+byte preset3[] = {
+  6
+};
 
 void buttonSelect(byte btn, boolean force) {
   precBtnNo = currBtnNo; // l'ultimo selezionato
@@ -46,13 +55,6 @@ void buttonSelect(byte btn, boolean force) {
     Serial.println("true bypass");
   else
     Serial.println("loop");
-      
-  if (currBtnNo==1) digitalWrite(relayPin, digitalRead(buttons[currBtnNo].getLedPin()));
-  else digitalWrite(relayPin, LOW);
-
-  if (currBtnNo==2) digitalWrite(relaySSRPin, !digitalRead(buttons[currBtnNo].getLedPin()));
-  else digitalWrite(relaySSRPin, HIGH);
-
 
   // resettiamo tutti gli altri led
   for (byte btnNo = 0; btnNo < sizeof(buttons) / sizeof(Button); btnNo++) {
@@ -61,26 +63,43 @@ void buttonSelect(byte btn, boolean force) {
       // spegni tutti i led che non sono del current button
       digitalWrite(buttons[btnNo].getLedPin(), LOW);
   }
-   
+
+  // resettiamo tutti gli altri rele
+  /*byte *p = buttons[currBtnNo].getPresets();
+  for (byte i = 0; i < sizeof(relays) / sizeof(byte); i++) {
+    byte found=false;
+    byte element=relays[i];
+    
+    for (byte j = 0; j < sizeof(p) / sizeof(byte); j++) {
+      if (element==p[j]) found=true;
+    }
+
+    if (found) continue;
+
+    // spegniamo il rele
+    digitalWrite(element, HIGH);
+  }*/
 }
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-   
-  pinMode(relayPin, OUTPUT);
+
+  // inizializziamo lo stato dei relay
+  if(sizeof(relays) > 0 ) {
+    for(byte i = 0; i < sizeof(relays); i++) {
+      pinMode(relays[i], OUTPUT);
+      digitalWrite(relays[i], HIGH);
+    }
+  }
   
-  pinMode(relaySSRPin, OUTPUT);
-  digitalWrite(relaySSRPin, HIGH);
-  
-  // Setting LED-Groups to Buttons if needed
-  buttons[0].setLEDGroup(groupPresets, sizeof(groupPresets) );
-  buttons[1].setLEDGroup(groupPresets, sizeof(groupPresets) );
-  buttons[2].setLEDGroup(groupPresets, sizeof(groupPresets) );
+  // associamo ad ogni tasto il proprio presets (al momento hard coded)
+  buttons[0].setPresets(preset1);
+  buttons[1].setPresets(preset2);
+  buttons[2].setPresets(preset3);
   
   // per adesso di default accendiamo il primo button
   buttonSelect(0, true);
-
 }
 
 void loop() {
@@ -93,10 +112,10 @@ void loop() {
     if (ret == 1) {
 
       if (precBtnNo != btnNo && buttons[btnNo].isMomentary()) {
-        Serial.println("torno al precedente");
+        //Serial.println("torno al precedente");
         buttonSelect(precBtnNo, true);
       } else {
-        Serial.println("tasto corrente");
+        //Serial.println("tasto corrente");
 	      buttonSelect(btnNo, false);
       }
 

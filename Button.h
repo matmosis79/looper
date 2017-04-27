@@ -32,20 +32,19 @@ class Button {
     // Public functions
     byte checkState();
     void select();
-    void setLEDGroup(byte ledGroup[], byte ledGroupQty);
+    void setPresets(byte presets[]);
+    byte getPresets();
     byte getLedPin();
     byte isMomentary();
 
   private:
     // Private Attributes
-    byte _actState;               // Actual Button-State:  LOW - unpressed    HIGH - pressed
 
     byte _btnPin;                 // Pin-Number for Buttons
     byte _ledPin;                 // Pin-Number for Button Status-LED
-    byte _ledGroupQty;
-
-
-    byte *_ledGroup;
+    
+    byte *_presets;
+    byte _presetsQty;    
 
     byte _previous;    // the previous reading from the input pin
     byte _momentaryOn; // button in momentary mode
@@ -55,8 +54,6 @@ class Button {
     long _time = 0;         // the last time the output pin was toggled
     long _debounce = 500;   // the debounce time, increase if the output flickers
     
-
-    boolean status;
     // Private Functions
 };
 

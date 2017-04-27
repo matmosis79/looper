@@ -35,7 +35,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
   _ledPin = ledPin;
 
   // Initialise quantity of MIDI-Messages and LED-Groups
-  _ledGroupQty = 0;
+  _presetsQty = 0;
 
 
   // Set Pin-Mode für Switch and LED
@@ -65,6 +65,11 @@ byte Button::checkState() {
   // Check if Button-State is different from the call before
   
   byte ret = 0;
+
+  // se non abbiamo presets impostati per il tasto
+  // usciamo senza fare nulla
+  if (_presetsQty==0) return ret;
+  
   byte reading = digitalRead(_btnPin);  // read input value
 
   // if the input just went from LOW and HIGH and we've waited long enough
@@ -72,8 +77,17 @@ byte Button::checkState() {
   // the time
   if (reading != _previous && millis() - _time > _debounce) {
     _time = millis();
-    
+
+    // accendiamo/spegniamo il nostro LED
     digitalWrite(_ledPin, !digitalRead(_ledPin) );
+
+    // accendiamo/spegniamo i nostri presets    
+    for(byte i = 0; i < _presetsQty; i++) {
+      Serial.print("attivo rele: ");
+      Serial.println(_presets[i]);
+      digitalWrite(_presets[i], !digitalRead(_ledPin));
+    }
+    
     ret = 1;    
   }
 
@@ -103,10 +117,14 @@ void Button::select() {
    @param messagesQty   Size of the array to calculate quantity of the array-elements
 
 */
-void Button::setLEDGroup(byte ledGroup[], byte ledGroupQty) {
+void Button::setPresets(byte presets[]) {
   // Set Instance-variables
-  _ledGroup = ledGroup;
-  _ledGroupQty = ledGroupQty / sizeof(byte);
+  _presets = presets;
+  _presetsQty = sizeof(_presets) / sizeof(byte);
+}
+
+byte Button::getPresets() {
+  return _presets;
 }
 
 byte Button::getLedPin() {
