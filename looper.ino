@@ -21,9 +21,10 @@ Button buttons[] = {
 byte precBtnNo = 0;
 byte currBtnNo = 0;
 
-// =============== Defining LOOPS ===================
+// =============== Defining LOOPS & AMP CHANNEL ===================
 //
 Set loops;
+byte ac= 8;
 
 void setup() {
   // put your setup code here, to run once:
@@ -47,20 +48,34 @@ void setup() {
 
   // riprogrammiamo la eeprom con i preset (hard coded)
   // disponibli 4096 byte su ATmega2560
+
+  // 10 banchi di memoria (byte) per preset
+  // gli utlimi due sono il rele per il cambio canale e il suo stato (spento/acceso)
+
   for (int i = 0; i < 512; i++) {
     EEPROM.write(i, 0);
   }
-  EEPROM.write((11) + 0, 2); // tasto 1
-  EEPROM.write((11) + 1, 6); // tasto 1
-  EEPROM.write((21) + 0, 2); // tasto 2
-  EEPROM.write((31) + 0, 6); // tasto 3
+  EEPROM.write((10) + 0, 2); // preset 1
+  EEPROM.write((10) + 1, 6); // preset 1
+  EEPROM.write((10) + 8, ac); // preset 1
+  EEPROM.write((10) + 9, 0); // preset 1
+
+  EEPROM.write((20) + 0, 2); // preset 2
+  EEPROM.write((20) + 8, ac); // preset 2
+  EEPROM.write((20) + 9, 1); // preset 2
+
+  EEPROM.write((30) + 0, 6); // preset 3
+  EEPROM.write((30) + 8, ac); // preset 3
+  EEPROM.write((30) + 9, 1); // preset 3
+
   // ========== fine codice temporaneo =============
+
 
   // associamo ad ogni tasto l'area di memoria della eeprom
   // dalla quale leggere la configurazione salvata dei preset
-  buttons[0].setPreset(11); // tasto 1
-  buttons[1].setPreset(21); // tasto 2
-  buttons[2].setPreset(31); // tasto 3  
+  buttons[0].setPreset(10); // tasto 1
+  buttons[1].setPreset(20); // tasto 2
+  buttons[2].setPreset(30); // tasto 3
   
 
   // per adesso di default accendiamo il primo button

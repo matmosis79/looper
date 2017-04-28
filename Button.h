@@ -46,9 +46,11 @@ class Button {
 
     byte _btnPin;                 // Pin-Number for Buttons
     byte _ledPin;                 // Pin-Number for Button Status-LED
-    
-    Set _preset;
-    int _eepromAddr;
+
+    int _eepromAddr;		// indirizzo area di memoria eeporm dedicata
+    Set _preset;		// elenco dei loop gestiti
+    byte _ampChannel;		// pin canale ampli
+    byte _ampChannelState;	// stato canale ampli
 
     byte _previous;    // the previous reading from the input pin
     byte _momentaryOn; // button in momentary mode

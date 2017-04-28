@@ -10,14 +10,11 @@
 
 #include "Button.h"
 
-
-
 /**
    Standard-Constructor
 
 */
 Button::Button() {
-
 }
 
 /**
@@ -34,14 +31,9 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
   _btnPin = btnPin;
   _ledPin = ledPin;
 
-  // Initialise quantity of MIDI-Messages and LED-Groups
-  _presetsQty = 0;
-
-
   // Set Pin-Mode für Switch and LED
   pinMode(_btnPin, INPUT_PULLUP);
   pinMode(_ledPin, OUTPUT);
-
 
   // Set initial-Button-State
   _previous = HIGH;
@@ -54,6 +46,7 @@ Button::Button(byte    btnPin,           /** Pin-Number where the switch is conn
 Button::~Button() {
 }
 
+
 /**
    This method will called, to check Button-State and will
    send a configured MIDI-Message. Depending on the
@@ -62,13 +55,12 @@ Button::~Button() {
    @return    void
 */
 byte Button::checkState() {
-  // Check if Button-State is different from the call before
-  
+  // Check if Button-State is different from the call before  
   byte ret = 0;
 
   // se non abbiamo presets impostati per il tasto
   // usciamo senza fare nulla
-  if (_presetsQty==0) return ret;
+  if (_preset.count() == 0) return ret;
   
   byte reading = digitalRead(_btnPin);  // read input value
 
@@ -116,9 +108,18 @@ void Button::setPreset(int eepromAddr) {
   // leggiamo la configurazione del preset dalla memoria
   for(i=0; i<10; i++) {
     byte v = EEPROM.read((_eepromAddr)+i);
-    if (v == 0) continue;
 
-    _preset.add(v);
+    switch (key) {
+      case 8: // caso pin canale ampli
+        _ampChannel = v;
+        break;
+      case 9: // caso stato pin canale ampli
+        _ampChannelState = v;
+        break;
+      default: // caso loop
+        if (v == 0) continue;
+        _preset.add(v);
+    }
   }
 }
 
