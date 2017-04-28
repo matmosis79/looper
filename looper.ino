@@ -4,9 +4,7 @@
 
  **/
 #include <EEPROM.h>
-#include "EEPROMAnything.h"
 #include "Button.h"
-#include "Loop.h"
 
 // ============== SETUP ===============================
 
@@ -23,12 +21,10 @@ byte currBtnNo = 0;
 
 // =============== Defining LOOPS & AMP CHANNEL ===================
 //
-Loop loops[] = {
-  // Loop-Pin   LED-Pin
-  Loop( 2 , 40 ),
-  Loop( 6 , 41 )
+byte loops[] = {
+  2, 6
 };
-Loop channel = Loop( 8 , 50 );
+byte channel = 8;
 
 void setup() {
   // put your setup code here, to run once:
@@ -43,30 +39,31 @@ void setup() {
   // 10 banchi di memoria (byte) per preset
   // gli utlimi due sono il rele per il cambio canale e il suo stato (spento/acceso)
 
-  for (int i = 0; i < 4096; i++) {
+  for (int i = 0; i < 512; i++) {
     EEPROM.write(i, 0);
   }
-  EEPROM_writeAnything((100) + 0, loops[0]); // preset 1
-  EEPROM_writeAnything((100) + 1, loops[1]); // preset 1
-  EEPROM_writeAnything((100) + 8, channel); // preset 1
-  EEPROM_writeAnything((100) + 9, 0); // preset 1
 
-  EEPROM_writeAnything((200) + 0, loops[0]); // preset 2
-  EEPROM_writeAnything((200) + 8, channel); // preset 2
-  EEPROM_writeAnything((200) + 9, 1); // preset 2
+  EEPROM.write((10) + 0, loops[0]); // preset 1
+  EEPROM.write((10) + 1, loops[1]); // preset 1
+  EEPROM.write((10) + 8, channel); // preset 1
+  EEPROM.write((10) + 9, 0); // preset 1
 
-  EEPROM_writeAnything((300) + 0, loops[1]); // preset 3
-  EEPROM_writeAnything((300) + 8, channel); // preset 3
-  EEPROM_writeAnything((300) + 9, 1); // preset 3
+  EEPROM.write((20) + 0, loops[0]); // preset 2
+  EEPROM.write((20) + 8, channel); // preset 2
+  EEPROM.write((20) + 9, 1); // preset 2
+
+  EEPROM.write((30) + 0, loops[1]); // preset 3
+  EEPROM.write((30) + 8, channel); // preset 3
+  EEPROM.write((30) + 9, 1); // preset 3
 
   // ========== fine codice temporaneo =============
 
 
   // associamo ad ogni tasto l'area di memoria della eeprom
   // dalla quale leggere la configurazione salvata dei preset
-  buttons[0].setPreset(100); // tasto 1
-  buttons[1].setPreset(200); // tasto 2
-  buttons[2].setPreset(300); // tasto 3
+  buttons[0].setPreset(10); // tasto 1
+  buttons[1].setPreset(20); // tasto 2
+  buttons[2].setPreset(30); // tasto 3
   
 
   // per adesso di default accendiamo il primo button
@@ -87,7 +84,7 @@ void loop() {
         buttonSelect(precBtnNo, true);
       } else {
         //Serial.println("tasto corrente");
-	buttonSelect(btnNo, false);
+        buttonSelect(btnNo, false);
       }
 
     }      
@@ -121,17 +118,25 @@ void buttonSelect(byte btn, boolean force) {
   }
 
   // resettiamo tutti gli altri loops
-  byte* currPreset = buttons[currBtnNo].getPreset();
-  byte currPresetQty = buttons[currBtnNo].getPresetQty() / sizeof(Loop);
+  byte currPresetQty = buttons[currBtnNo].getPresetQty() / sizeof(byte);
+  byte currPreset[currPresetQty];
+  buttons[currBtnNo].getPreset(currPreset);  
   for(byte i = 0; i < sizeof(loops); i++) {
     bool found = false;
     for(byte j = 0; j < currPresetQty; j++) {
-      if (currPreset[j].getLoopPin() == loops[i].getLoopPin()) found = true;
+      if (currPreset[j] == loops[i]) {
+        found = true;
+        break;
+      }
     }
     if (found) continue;
 
     // spegni tutti i loop che non sono del current button
     digitalWrite(loops[i], HIGH);
   }
+
+  // TODO
+  // facciamo un giro per impostare i led dei loop
+  
 
 }

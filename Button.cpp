@@ -56,12 +56,7 @@ Button::~Button() {
 */
 byte Button::checkState() {
   // Check if Button-State is different from the call before  
-  byte ret = 0;
-
-  // se non abbiamo presets impostati per il tasto
-  // usciamo senza fare nulla
-  if (_preset == 0) return ret;
-  
+  byte ret = 0;  
   byte reading = digitalRead(_btnPin);  // read input value
 
   // if the input just went from LOW and HIGH and we've waited long enough
@@ -75,7 +70,11 @@ byte Button::checkState() {
 
     // accendiamo/spegniamo i nostri loop
     for(byte i = 0; i < sizeof(_preset); i++) {
-      _preset[i].select(digitalRead(_ledPin));
+      if (_preset[i] == 0) continue;
+
+      Serial.print("toggle loop: ");
+      Serial.println(_preset[i]);
+      digitalWrite(_preset[i],!digitalRead(_ledPin));
     }
 
     ret = 1;    
@@ -97,6 +96,15 @@ byte Button::checkState() {
 void Button::select() {
   // accendiamo/spegniamo il nostro LED
   digitalWrite(_ledPin, HIGH);
+
+  // accendiamo/spegniamo i nostri loop
+  for(byte i = 0; i < sizeof(_preset); i++) {
+    if (_preset[i] == 0) continue;
+
+    Serial.print("toggle loop: ");
+    Serial.println(_preset[i]);
+    digitalWrite(_preset[i],!digitalRead(_ledPin));
+  }
 }
 
 void Button::setPreset(int eepromAddr) {
@@ -105,37 +113,28 @@ void Button::setPreset(int eepromAddr) {
 
   // leggiamo la configurazione del preset dalla memoria
   for(byte i=0; i<10; i++) {
+    byte v = EEPROM.read((_eepromAddr)+i);
+    
     switch (i) {
       case 8: // caso pin canale ampli
-        Loop v;
-        EEPROM.readAnything((_eepromAddr)+i, v);
         _ampChannel = v;
         break;
       case 9: // caso stato pin canale ampli
-        byte v;
-        EEPROM.readAnything((_eepromAddr)+i, v);
         _ampChannelState = v;
         break;
       default: // caso loop
-        Loop v;
-        EEPROM.readAnything((_eepromAddr)+i, v);
-        if (v == 0) continue;
-
-        if (_preset != 0) {
-          _preset = (byte*) realloc(_preset, (i+1) * sizeof(byte));
-        } else {
-          _preset = (byte*) malloc((i+1) * sizeof(byte));
-        }
         _preset[i] = v;
+        pinMode(v, OUTPUT);
+        digitalWrite(v, HIGH);
     }
   }
 }
 
-Set Button::getPreset() {
-  return _preset;
+void Button::getPreset(byte preset[]) {
+  memcpy( preset, _preset, 10*sizeof(byte) );
 }
 
-bte getPresetQty() {
+byte Button::getPresetQty() {
   return sizeof(_preset);
 }
 
