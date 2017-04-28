@@ -13,7 +13,9 @@
 
 // ==== Arduino-Standard-Lib
 #include <Arduino.h>
-#include "Set.h"
+#include <EEPROM.h>
+#include "EEPROMAnything.h"
+#include "Loop.h"
 
 class Button {
   public:
@@ -35,8 +37,9 @@ class Button {
     void select();
 
     void setPreset(int eepromAddr);
-    Set getPreset();
     int getEepromAddr();
+    byte getPreset();
+    byte getPresetQty();
 
     byte getLedPin();
     byte isMomentary();
@@ -48,8 +51,8 @@ class Button {
     byte _ledPin;                 // Pin-Number for Button Status-LED
 
     int _eepromAddr;		// indirizzo area di memoria eeporm dedicata
-    Set _preset;		// elenco dei loop gestiti
-    byte _ampChannel;		// pin canale ampli
+    Loop _preset[];		// elenco dei loop gestiti
+    Loop _ampChannel;		// pin canale ampli
     byte _ampChannelState;	// stato canale ampli
 
     byte _previous;    // the previous reading from the input pin

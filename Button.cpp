@@ -60,7 +60,7 @@ byte Button::checkState() {
 
   // se non abbiamo presets impostati per il tasto
   // usciamo senza fare nulla
-  if (_preset.count() == 0) return ret;
+  if (_preset == 0) return ret;
   
   byte reading = digitalRead(_btnPin);  // read input value
 
@@ -74,10 +74,8 @@ byte Button::checkState() {
     digitalWrite(_ledPin, !digitalRead(_ledPin) );
 
     // accendiamo/spegniamo i nostri loop
-    int loop = _preset.first();  
-    while (loop != -1) {
-      digitalWrite(loop, !digitalRead(loop) );
-      loop = _preset.next();
+    for(byte i = 0; i < sizeof(_preset); i++) {
+      _preset[i].select(digitalRead(_ledPin));
     }
 
     ret = 1;    
@@ -103,28 +101,39 @@ void Button::select() {
 
 void Button::setPreset(int eepromAddr) {
   _eepromAddr = eepromAddr;
-  _preset.clr();
+  memset(_preset, 0, sizeof(_preset)); // clear array
 
   // leggiamo la configurazione del preset dalla memoria
-  for(i=0; i<10; i++) {
-    byte v = EEPROM.read((_eepromAddr)+i);
-
-    switch (key) {
+  for(byte i=0; i<10; i++) {
+    switch (i) {
       case 8: // caso pin canale ampli
+        Loop v = EEPROM.readAnything((_eepromAddr)+i);
         _ampChannel = v;
         break;
       case 9: // caso stato pin canale ampli
+        byte v = EEPROM.readAnything((_eepromAddr)+i);
         _ampChannelState = v;
         break;
       default: // caso loop
-        if (v == 0) continue;
-        _preset.add(v);
+        Loop v = EEPROM.readAnything((_eepromAddr)+i);
+        if (!v) continue;
+
+        if (_preset != 0) {
+          _preset = (byte*) realloc(_preset, (i+1) * sizeof(byte));
+        } else {
+          _preset = (byte*) malloc((i+1) * sizeof(byte));
+        }
+        _preset[i] = v;
     }
   }
 }
 
 Set Button::getPreset() {
   return _preset;
+}
+
+bte getPresetQty() {
+  return sizeof(_preset);
 }
 
 int Button::getEepromAddr() {
