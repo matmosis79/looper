@@ -4,82 +4,26 @@
 
  **/
 
-// ==== Button-Class
+#include <EEPROM.h>
 #include "Button.h"
+#include "Set.h"
 
 // ============== SETUP ===============================
 
 // ============== Button-Definitions: =================
 //
 Button buttons[] = {
-  //    Button-Pin   LED-Pin
-  Button(    5,       10 ),
-  Button(    4,       9 ),
-  Button(    3,       8 )
+  // Button-Pin   LED-Pin
+  Button( 5 , 10 ),
+  Button( 4 , 9 ),
+  Button( 3 , 8 )
 };
 byte precBtnNo = 0;
 byte currBtnNo = 0;
 
-// =============== Defining RELAYS ===================
+// =============== Defining LOOPS ===================
 //
-byte relays[] = {
-  2, 6
-};
-
-// =============== Defining PRESETS ===================
-//
-byte preset1[] = {
-  2, 6
-};
-byte preset2[] = {
-  2
-};
-byte preset3[] = {
-  6
-};
-
-void buttonSelect(byte btn, boolean force) {
-  precBtnNo = currBtnNo; // l'ultimo selezionato
-  currBtnNo = btn; // il corrente
-  
-  if (force)
-    // forziamo la selezione visto che non arriva da alterazione
-    // del bottone stesso
-    buttons[currBtnNo].select();
-
-  Serial.print("tasto premuto: ");
-  Serial.println(currBtnNo);
-      
-  byte state=digitalRead(buttons[currBtnNo].getLedPin());      
-  if (state==LOW)
-    Serial.println("true bypass");
-  else
-    Serial.println("loop");
-
-  // resettiamo tutti gli altri led
-  for (byte btnNo = 0; btnNo < sizeof(buttons) / sizeof(Button); btnNo++) {
-    if (btnNo==currBtnNo) continue;
-        
-      // spegni tutti i led che non sono del current button
-      digitalWrite(buttons[btnNo].getLedPin(), LOW);
-  }
-
-  // resettiamo tutti gli altri rele
-  /*byte *p = buttons[currBtnNo].getPresets();
-  for (byte i = 0; i < sizeof(relays) / sizeof(byte); i++) {
-    byte found=false;
-    byte element=relays[i];
-    
-    for (byte j = 0; j < sizeof(p) / sizeof(byte); j++) {
-      if (element==p[j]) found=true;
-    }
-
-    if (found) continue;
-
-    // spegniamo il rele
-    digitalWrite(element, HIGH);
-  }*/
-}
+Set loops;
 
 void setup() {
   // put your setup code here, to run once:
@@ -87,17 +31,38 @@ void setup() {
 
   // inizializziamo lo stato dei relay
   if(sizeof(relays) > 0 ) {
-    for(byte i = 0; i < sizeof(relays); i++) {
+    for(byte i = 0; i < sizeof(loops); i++) {
       pinMode(relays[i], OUTPUT);
-      digitalWrite(relays[i], HIGH);
+      digitalWrite(relays[i], HIGH); //pullup all relay outputs in case off low level relayboard
     }
   }
+
+  // inizializziamo l'elenco dei loops
+  loops.add(2);
+  loops.add(6);
+  // ...
   
-  // associamo ad ogni tasto il proprio presets (al momento hard coded)
-  buttons[0].setPresets(preset1);
-  buttons[1].setPresets(preset2);
-  buttons[2].setPresets(preset3);
   
+  // ========== codice temporaneo =============
+
+  // riprogrammiamo la eeprom con i preset (hard coded)
+  // disponibli 4096 byte su ATmega2560
+  for (int i = 0; i < 512; i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.write((11) + 0, 2); // tasto 1
+  EEPROM.write((11) + 1, 6); // tasto 1
+  EEPROM.write((21) + 0, 2); // tasto 2
+  EEPROM.write((31) + 0, 6); // tasto 3
+  // ========== fine codice temporaneo =============
+
+  // associamo ad ogni tasto l'area di memoria della eeprom
+  // dalla quale leggere la configurazione salvata dei preset
+  buttons[0].setPreset(11); // tasto 1
+  buttons[1].setPreset(21); // tasto 2
+  buttons[2].setPreset(31); // tasto 3  
+  
+
   // per adesso di default accendiamo il primo button
   buttonSelect(0, true);
 }
@@ -116,11 +81,48 @@ void loop() {
         buttonSelect(precBtnNo, true);
       } else {
         //Serial.println("tasto corrente");
-	      buttonSelect(btnNo, false);
+	buttonSelect(btnNo, false);
       }
 
     }      
-  }
-  
+  }  
 }
 
+void buttonSelect(byte btn, boolean force) {
+  precBtnNo = currBtnNo; // l'ultimo selezionato
+  currBtnNo = btn; // il corrente
+  
+  if (force)
+    // forziamo la selezione visto che non arriva da alterazione
+    // del bottone stesso
+    buttons[currBtnNo].select();
+
+  Serial.print("tasto premuto: ");
+  Serial.println(currBtnNo);
+      
+  byte state=digitalRead(buttons[currBtnNo].getLedPin());      
+  if (state==LOW)
+    Serial.println("bypass");
+  else
+    Serial.println("loop");
+
+  // resettiamo tutti gli altri led
+  for (byte btnNo = 0; btnNo < sizeof(buttons) / sizeof(Button); btnNo++) {
+    if (btnNo==currBtnNo) continue;
+        
+      // spegni tutti i led che non sono del current button
+      digitalWrite(buttons[btnNo].getLedPin(), LOW);
+  }
+
+  // resettiamo tutti gli altri loops
+  Set currPreset = buttons[currBtnNo].getPreset();
+  int loop = loops.first();
+  while (loop != -1) {
+    if (currPreset.has(loop)) continue;
+
+    // spegni tutti i loop che non sono del current button
+    digitalWrite(loop, HIGH);
+    loop = loops.next();
+  }
+
+}

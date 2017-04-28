@@ -13,6 +13,7 @@
 
 // ==== Arduino-Standard-Lib
 #include <Arduino.h>
+#include "Set.h"
 
 class Button {
   public:
@@ -32,8 +33,11 @@ class Button {
     // Public functions
     byte checkState();
     void select();
-    void setPresets(byte presets[]);
-    byte getPresets();
+
+    void setPreset(int eepromAddr);
+    Set getPreset();
+    int getEepromAddr();
+
     byte getLedPin();
     byte isMomentary();
 
@@ -43,8 +47,8 @@ class Button {
     byte _btnPin;                 // Pin-Number for Buttons
     byte _ledPin;                 // Pin-Number for Button Status-LED
     
-    byte *_presets;
-    byte _presetsQty;    
+    Set _preset;
+    int _eepromAddr;
 
     byte _previous;    // the previous reading from the input pin
     byte _momentaryOn; // button in momentary mode

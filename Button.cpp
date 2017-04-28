@@ -81,13 +81,13 @@ byte Button::checkState() {
     // accendiamo/spegniamo il nostro LED
     digitalWrite(_ledPin, !digitalRead(_ledPin) );
 
-    // accendiamo/spegniamo i nostri presets    
-    for(byte i = 0; i < _presetsQty; i++) {
-      Serial.print("attivo rele: ");
-      Serial.println(_presets[i]);
-      digitalWrite(_presets[i], !digitalRead(_ledPin));
+    // accendiamo/spegniamo i nostri loop
+    int loop = _preset.first();  
+    while (loop != -1) {
+      digitalWrite(loop, !digitalRead(loop) );
+      loop = _preset.next();
     }
-    
+
     ret = 1;    
   }
 
@@ -105,26 +105,29 @@ byte Button::checkState() {
 }
 
 void Button::select() {
-  // First switch off all LEDs of the LED-Group!
+  // accendiamo/spegniamo il nostro LED
   digitalWrite(_ledPin, HIGH);
 }
 
-/**
-   This Method adds a full LED-Group to the actual Button
-   for disable the LEDS at any change
+void Button::setPreset(int eepromAddr) {
+  _eepromAddr = eepromAddr;
+  _preset.clr();
 
-   @param ledGroup      Array of all LED-Pins
-   @param messagesQty   Size of the array to calculate quantity of the array-elements
+  // leggiamo la configurazione del preset dalla memoria
+  for(i=0; i<10; i++) {
+    byte v = EEPROM.read((_eepromAddr)+i);
+    if (v == 0) continue;
 
-*/
-void Button::setPresets(byte presets[]) {
-  // Set Instance-variables
-  _presets = presets;
-  _presetsQty = sizeof(_presets) / sizeof(byte);
+    _preset.add(v);
+  }
 }
 
-byte Button::getPresets() {
-  return _presets;
+Set Button::getPreset() {
+  return _preset;
+}
+
+int Button::getEepromAddr() {
+  return _eepromAddr;
 }
 
 byte Button::getLedPin() {
