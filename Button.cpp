@@ -107,16 +107,19 @@ void Button::setPreset(int eepromAddr) {
   for(byte i=0; i<10; i++) {
     switch (i) {
       case 8: // caso pin canale ampli
-        Loop v = EEPROM.readAnything((_eepromAddr)+i);
+        Loop v;
+        EEPROM.readAnything((_eepromAddr)+i, v);
         _ampChannel = v;
         break;
       case 9: // caso stato pin canale ampli
-        byte v = EEPROM.readAnything((_eepromAddr)+i);
+        byte v;
+        EEPROM.readAnything((_eepromAddr)+i, v);
         _ampChannelState = v;
         break;
       default: // caso loop
-        Loop v = EEPROM.readAnything((_eepromAddr)+i);
-        if (!v) continue;
+        Loop v;
+        EEPROM.readAnything((_eepromAddr)+i, v);
+        if (v == 0) continue;
 
         if (_preset != 0) {
           _preset = (byte*) realloc(_preset, (i+1) * sizeof(byte));
