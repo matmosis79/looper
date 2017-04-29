@@ -124,10 +124,11 @@ void buttonSelect(byte btn, boolean force) {
   for(byte i = 0; i < sizeof(loops); i++) {
     bool found = false;
     for(byte j = 0; j < currPresetQty; j++) {
-      if (currPreset[j] == loops[i]) {
-        found = true;
-        break;
-      }
+      if (currPreset[j] == 0) continue;
+      if (currPreset[j] != loops[i]) continue;
+      
+      found = true;
+      break;      
     }
     if (found) continue;
 
