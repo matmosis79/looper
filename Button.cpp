@@ -64,19 +64,11 @@ byte Button::checkState() {
   // the time
   if (reading != _previous && millis() - _time > _debounce) {
     _time = millis();
-
-    // accendiamo/spegniamo il nostro LED
-    digitalWrite(_ledPin, !digitalRead(_ledPin) );
-
-    // accendiamo/spegniamo i nostri loop
-    for(byte i = 0; i < sizeof(_preset); i++) {
-      if (_preset[i] == 0) continue;
-
-      Serial.print("toggle loop: ");
-      Serial.println(_preset[i]);
-      digitalWrite(_preset[i],!digitalRead(_ledPin));
-    }
-
+    
+    // impostiamo l'azione in base allo stato del led
+    // (che fa da nostro latching)
+    _setAction(!digitalRead(_ledPin));
+    
     ret = 1;    
   }
 
@@ -94,17 +86,8 @@ byte Button::checkState() {
 }
 
 void Button::select() {
-  // accendiamo/spegniamo il nostro LED
-  digitalWrite(_ledPin, HIGH);
-
-  // accendiamo/spegniamo i nostri loop
-  for(byte i = 0; i < sizeof(_preset); i++) {
-    if (_preset[i] == 0) continue;
-
-    Serial.print("toggle loop: ");
-    Serial.println(_preset[i]);
-    digitalWrite(_preset[i],!digitalRead(_ledPin));
-  }
+  // forziamo l'azione ad ACCESO
+  _setAction(HIGH);
 }
 
 void Button::setPreset(int eepromAddr) {
@@ -117,15 +100,13 @@ void Button::setPreset(int eepromAddr) {
     
     switch (i) {
       case 8: // caso pin canale ampli
-        _ampChannel = v;
+        _ampChannel = v;        
         break;
       case 9: // caso stato pin canale ampli
-        _ampChannelState = v;
+        _ampChannelState = v;        
         break;
       default: // caso loop
-        _preset[i] = v;
-        pinMode(v, OUTPUT);
-        digitalWrite(v, HIGH);
+        _preset[i] = v;        
     }
   }
 }
@@ -150,3 +131,19 @@ byte Button::isMomentary() {
   return _momentaryOn;
 }
 
+void Button::_setAction(byte state){
+  // accendiamo/spegniamo il nostro LED
+  digitalWrite(_ledPin, state );
+
+  // accendiamo/spegniamo i nostri loop
+  for(byte i = 0; i < sizeof(_preset); i++) {
+    if (_preset[i] == 0) continue;
+
+    Serial.print("toggle loop: ");
+    Serial.println(_preset[i]);
+    digitalWrite(_preset[i], !digitalRead(_ledPin));
+  }
+
+  // impostiamo o stato del canale dell'ampli
+  digitalWrite(_ampChannel, _ampChannelState);
+}

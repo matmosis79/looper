@@ -62,6 +62,9 @@ class Button {
     long _debounce = 500;   // the debounce time, increase if the output flickers
     
     // Private Functions
+    
+    void _setAction(byte state);
+    
 };
 
 #endif
