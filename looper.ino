@@ -36,7 +36,7 @@ void setup() {
   // inizializziamo i pin dei loop
   for(byte i = 0; i < sizeof(loops); i++) {
     digitalWrite(loops[i], HIGH);
-    pinMode(loops[i], OUTPUT);    
+    pinMode(loops[i], OUTPUT);
   }
   // inizializziamo i pin dei led dei loop
   for(byte i = 0; i < sizeof(ledLoops); i++) {
@@ -47,22 +47,32 @@ void setup() {
   pinMode(channel, OUTPUT);
           
   // ========== codice temporaneo =============
-  //initMem();
+  //initProg();
 
   // associamo ad ogni tasto l'area di memoria della eeprom
   // dalla quale leggere la configurazione salvata dei preset
-  buttons[0].setPreset(10); // tasto 1
-  buttons[1].setPreset(20); // tasto 2
-  buttons[2].setPreset(30); // tasto 3  
-
+  buttons[0].setPreset(10); // button 1
+  buttons[1].setPreset(20); // button 2
+  buttons[2].setPreset(30); // button 3
+  //buttons[3].setPreset(40); // button 4
+  
   // per adesso di default accendiamo il primo button
   buttonSelect(0, true);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  
+  play();
+  
+  //edit();
+  //save();
+}
 
-  // Read Button-State und check for activation!
+void play() {
+  // Funzione PLAY
+  // Leggiamo lo stato degli switch
+  
   for (byte btnNo = 0; btnNo < sizeof(buttons) / sizeof(Button); btnNo++) {
     byte ret = buttons[btnNo].checkState();
 
@@ -77,7 +87,7 @@ void loop() {
       }
 
     }      
-  }  
+  }    
 }
 
 void buttonSelect(byte btn, boolean force) {
@@ -134,7 +144,7 @@ void buttonSelect(byte btn, boolean force) {
 
 }
 
-void initMem() {
+void initProg() {
   // ========== codice temporaneo =============
 
   // riprogrammiamo la eeprom con i preset (hard coded)
