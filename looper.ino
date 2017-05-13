@@ -22,7 +22,7 @@ byte currBtnNo = 0;
 // =============== Defining LOOPS & AMP CHANNEL ===================
 //
 byte loops[] = {
-  2, 6
+  7, 6
 };
 byte ledLoops[] = {
   12, 13
