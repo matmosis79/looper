@@ -141,7 +141,7 @@ void Button::_setAction(byte state){
 
     Serial.print("toggle loop: ");
     Serial.println(_preset[i]);
-    digitalWrite(_preset[i], !digitalRead(_ledPin));
+    digitalWrite(_preset[i], digitalRead(_ledPin));
   }
 
   // impostiamo o stato del canale dell'ampli

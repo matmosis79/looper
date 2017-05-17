@@ -24,9 +24,9 @@ byte currBtnNo = 0;
 byte loops[] = {
   7, 6
 };
-byte ledLoops[] = {
+/*byte ledLoops[] = {
   12, 13
-};
+};*/
 byte channel = 11;
 
 void setup() {
@@ -35,19 +35,19 @@ void setup() {
 
   // inizializziamo i pin dei loop
   for(byte i = 0; i < sizeof(loops); i++) {
-    digitalWrite(loops[i], HIGH);
+    //digitalWrite(loops[i], HIGH);
     pinMode(loops[i], OUTPUT);
   }
   // inizializziamo i pin dei led dei loop
-  for(byte i = 0; i < sizeof(ledLoops); i++) {
+  /*for(byte i = 0; i < sizeof(ledLoops); i++) {
     pinMode(ledLoops[i], OUTPUT);
-  }
+  }*/
   // inizializziamo il pin del canale dell'ampli
-  digitalWrite(channel, HIGH);
+  //digitalWrite(channel, HIGH);
   pinMode(channel, OUTPUT);
           
   // ========== codice temporaneo =============
-  //initProg();
+  initProg();
 
   // associamo ad ogni tasto l'area di memoria della eeprom
   // dalla quale leggere la configurazione salvata dei preset
@@ -131,15 +131,15 @@ void buttonSelect(byte btn, boolean force) {
     }
 
     // facciamo un giro per impostare i led dei loop
-    digitalWrite(ledLoops[i], !digitalRead(loops[i]));
+    //digitalWrite(ledLoops[i], digitalRead(loops[i]));
     
     if (found) continue;
 
     // spegni tutti i loop che non sono del current button
-    digitalWrite(loops[i], HIGH);
+    digitalWrite(loops[i], LOW);
 
     // facciamo un giro per impostare i led dei loop
-    digitalWrite(ledLoops[i], !digitalRead(loops[i]));
+    //digitalWrite(ledLoops[i], digitalRead(loops[i]));
   }
 
 }
@@ -160,15 +160,15 @@ void initProg() {
   EEPROM.write((10) + 0, loops[0]); // preset 1
   EEPROM.write((10) + 1, loops[1]); // preset 1
   EEPROM.write((10) + 8, channel); // preset 1
-  EEPROM.write((10) + 9, HIGH); // preset 1
+  EEPROM.write((10) + 9, LOW); // preset 1
 
   EEPROM.write((20) + 0, loops[0]); // preset 2
   EEPROM.write((20) + 8, channel); // preset 2
-  EEPROM.write((20) + 9, LOW); // preset 2
+  EEPROM.write((20) + 9, HIGH); // preset 2
 
   EEPROM.write((30) + 0, loops[1]); // preset 3
   EEPROM.write((30) + 8, channel); // preset 3
-  EEPROM.write((30) + 9, LOW); // preset 3
+  EEPROM.write((30) + 9, HIGH); // preset 3
 
   // ========== fine codice temporaneo =============  
 }
