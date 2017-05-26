@@ -22,12 +22,41 @@ byte currBtnNo = 0;
 // =============== Defining LOOPS & AMP CHANNEL ===================
 //
 byte loops[] = {
-  7, 6
+  A0, A1, A2, A3
 };
 /*byte ledLoops[] = {
   12, 13
 };*/
 byte channel = 11;
+
+void initProg() {
+  // ========== codice temporaneo =============
+
+  // riprogrammiamo la eeprom con i preset (hard coded)
+  // disponibli 4096 byte su ATmega2560
+
+  // 10 banchi di memoria (byte) per preset
+  // gli utlimi due sono il rele per il cambio canale e il suo stato (spento/acceso)
+
+  for (int i = 0; i < 512; i++) {
+    EEPROM.write(i, 0);
+  }
+
+  EEPROM.write((10) + 0, loops[0]); // preset 1
+  EEPROM.write((10) + 1, loops[1]); // preset 1
+  EEPROM.write((10) + 8, channel); // preset 1
+  EEPROM.write((10) + 9, LOW); // preset 1
+
+  EEPROM.write((20) + 0, loops[0]); // preset 2
+  EEPROM.write((20) + 8, channel); // preset 2
+  EEPROM.write((20) + 9, HIGH); // preset 2
+
+  EEPROM.write((30) + 0, loops[1]); // preset 3
+  EEPROM.write((30) + 8, channel); // preset 3
+  EEPROM.write((30) + 9, HIGH); // preset 3
+
+  // ========== fine codice temporaneo =============  
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -35,15 +64,9 @@ void setup() {
 
   // inizializziamo i pin dei loop
   for(byte i = 0; i < sizeof(loops); i++) {
-    //digitalWrite(loops[i], HIGH);
     pinMode(loops[i], OUTPUT);
   }
-  // inizializziamo i pin dei led dei loop
-  /*for(byte i = 0; i < sizeof(ledLoops); i++) {
-    pinMode(ledLoops[i], OUTPUT);
-  }*/
   // inizializziamo il pin del canale dell'ampli
-  //digitalWrite(channel, HIGH);
   pinMode(channel, OUTPUT);
           
   // ========== codice temporaneo =============
@@ -54,7 +77,6 @@ void setup() {
   buttons[0].setPreset(10); // button 1
   buttons[1].setPreset(20); // button 2
   buttons[2].setPreset(30); // button 3
-  //buttons[3].setPreset(40); // button 4
   
   // per adesso di default accendiamo il primo button
   buttonSelect(0, true);
@@ -144,31 +166,4 @@ void buttonSelect(byte btn, boolean force) {
 
 }
 
-void initProg() {
-  // ========== codice temporaneo =============
 
-  // riprogrammiamo la eeprom con i preset (hard coded)
-  // disponibli 4096 byte su ATmega2560
-
-  // 10 banchi di memoria (byte) per preset
-  // gli utlimi due sono il rele per il cambio canale e il suo stato (spento/acceso)
-
-  for (int i = 0; i < 512; i++) {
-    EEPROM.write(i, 0);
-  }
-
-  EEPROM.write((10) + 0, loops[0]); // preset 1
-  EEPROM.write((10) + 1, loops[1]); // preset 1
-  EEPROM.write((10) + 8, channel); // preset 1
-  EEPROM.write((10) + 9, LOW); // preset 1
-
-  EEPROM.write((20) + 0, loops[0]); // preset 2
-  EEPROM.write((20) + 8, channel); // preset 2
-  EEPROM.write((20) + 9, HIGH); // preset 2
-
-  EEPROM.write((30) + 0, loops[1]); // preset 3
-  EEPROM.write((30) + 8, channel); // preset 3
-  EEPROM.write((30) + 9, HIGH); // preset 3
-
-  // ========== fine codice temporaneo =============  
-}
