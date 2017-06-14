@@ -27,7 +27,7 @@ byte loops[] = {
 /*byte ledLoops[] = {
   12, 13
 };*/
-byte channel = 11;
+byte channel = A4;
 
 void initProg() {
   // ========== codice temporaneo =============
@@ -42,16 +42,17 @@ void initProg() {
     EEPROM.write(i, 0);
   }
 
-  EEPROM.write((10) + 0, loops[0]); // preset 1
-  EEPROM.write((10) + 1, loops[1]); // preset 1
+  EEPROM.write((10) + 0, loops[1]); // preset 1
   EEPROM.write((10) + 8, channel); // preset 1
   EEPROM.write((10) + 9, LOW); // preset 1
 
-  EEPROM.write((20) + 0, loops[0]); // preset 2
+  EEPROM.write((20) + 0, loops[1]); // preset 2
   EEPROM.write((20) + 8, channel); // preset 2
   EEPROM.write((20) + 9, HIGH); // preset 2
 
   EEPROM.write((30) + 0, loops[1]); // preset 3
+  EEPROM.write((30) + 0, loops[2]); // preset 3
+  EEPROM.write((30) + 0, loops[3]); // preset 3
   EEPROM.write((30) + 8, channel); // preset 3
   EEPROM.write((30) + 9, HIGH); // preset 3
 
