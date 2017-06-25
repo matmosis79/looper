@@ -12,9 +12,9 @@
 //
 Button buttons[] = {
   // Button-Pin   LED-Pin
-  Button( 5 , 10 ),
-  Button( 4 , 9 ),
-  Button( 3 , 8 )
+  Button( 5 , 9 ),
+  Button( 4 , 10 ),
+  Button( 3 , 11 )
 };
 byte precBtnNo = 0;
 byte currBtnNo = 0;
@@ -51,8 +51,8 @@ void initProg() {
   EEPROM.write((20) + 9, HIGH); // preset 2
 
   EEPROM.write((30) + 0, loops[1]); // preset 3
-  EEPROM.write((30) + 0, loops[2]); // preset 3
-  EEPROM.write((30) + 0, loops[3]); // preset 3
+  EEPROM.write((30) + 1, loops[2]); // preset 3
+  EEPROM.write((30) + 2, loops[3]); // preset 3
   EEPROM.write((30) + 8, channel); // preset 3
   EEPROM.write((30) + 9, HIGH); // preset 3
 
